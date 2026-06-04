@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="AI Hydra Threat Capability Framework — tracking the convergence of autonomous AI and offensive cyber tooling.">
+<meta name="theme-color" content="#0d1117">
+<meta name="og:title" content="The AI Hydra — Threat Capability Framework">
+<meta name="og:description" content="Live intelligence tracker mapping autonomous AI offensive cyber capabilities and engineering gaps.">
+<title>The AI Hydra — Threat Capability Framework</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.26.9/babel.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0d1117;color:#e6edf3;font-family:'Segoe UI',-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#58a6ff;text-decoration:none}a:hover{text-decoration:underline}
+button{font-family:inherit}button:hover{opacity:.85}
+input,select{font-family:monospace}
+::selection{background:rgba(0,212,170,.2)}
+input::placeholder{color:#8b949e}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@media(max-width:700px){.cols{flex-direction:column!important}}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-type="module">
+const {useState,useEffect,useMemo}=React;
+const STATUS={exists:{color:"#00D4AA",bg:"rgba(0,212,170,.06)",label:"Exists Today"},partial:{color:"#FFAA33",bg:"rgba(255,170,51,.06)",label:"Partially Exists"},gap:{color:"#FF6B6B",bg:"rgba(255,107,107,.06)",label:"Engineering Gap"}};
+const SEV={critical:{color:"#FF6B6B",label:"CRIT"},high:{color:"#FFAA33",label:"HIGH"},medium:{color:"#58A6FF",label:"MED"},low:{color:"#8B949E",label:"LOW"}};
+
+function Dot({status,size=9}){return <span style={{display:"inline-block",width:size,height:size,borderRadius:"50%",background:STATUS[status].color,flexShrink:0}}/>}
+function Badge({severity}){const s=SEV[severity];return <span style={{fontSize:9,fontWeight:800,color:s.color,background:s.color+"12",border:"1px solid "+s.color+"25",padding:"2px 7px",borderRadius:3,letterSpacing:1.5,fontFamily:"monospace"}}>{s.label}</span>}
+
+function App(){
+  const[tab,setTab]=useState("gaps");
+  const[gaps,setGaps]=useState([]);
+  const[intel,setIntel]=useState([]);
+  const[changelog,setChangelog]=useState([]);
+  const[loading,setLoading]=useState(true);
+
+  useEffect(()=>{
+    Promise.all([
+      fetch("data/gaps.json").then(r=>r.json()),
+      fetch("data/intel.json").then(r=>r.json()),
+      fetch("data/changelog.json").then(r=>r.json()),
+    ]).then(([g,i,c])=>{setGaps(g);setIntel(i);setChangelog(c);setLoading(false)}).catch(e=>{console.error(e);setLoading(false)});
+  },[]);
+
+  const counts=useMemo(()=>{const c={exists:0,partial:0,gap:0};gaps.forEach(g=>c[g.status]++);return c},[gaps]);
+  const total=counts.exists+counts.partial+counts.gap;
+  const tabs=[{id:"architecture",label:"Architecture"},{id:"gaps",label:"Gap Analysis",count:gaps.length},{id:"intel",label:"Intelligence",count:intel.length},{id:"timeline",label:"Timeline",count:changelog.length}];
+
+  if(loading)return <div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100vh",color:"#8b949e",fontFamily:"monospace"}}>Loading framework data...</div>;
+
+  return(
+    <div style={{minHeight:"100vh"}}>
+      <div style={{borderBottom:"1px solid #1b1f27",padding:"18px 20px"}}>
+        <div style={{maxWidth:1060,margin:"0 auto"}}>
+          <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:4}}>
+            <div style={{width:7,height:7,borderRadius:"50%",background:"#FF6B6B",animation:"pulse 2s infinite"}}/>
+            <span style={{color:"#FF6B6B",fontSize:9,fontFamily:"monospace",textTransform:"uppercase",letterSpacing:2,fontWeight:800}}>Live Intelligence Tracker</span>
+          </div>
+          <h1 style={{fontSize:24,fontWeight:800,marginBottom:4,letterSpacing:-.5}}>The AI Hydra — Threat Capability Framework</h1>
+          <p style={{color:"#8b949e",fontSize:12}}>Tracking the convergence of autonomous AI, offensive cyber tooling, and the engineering gaps that remain.</p>
+          {total>0&&<div style={{display:"flex",gap:18,marginTop:12}}>
+            {Object.entries(STATUS).map(([k,v])=><div key={k} style={{display:"flex",alignItems:"center",gap:5}}><Dot status={k} size={7}/><span style={{color:v.color,fontSize:11,fontWeight:800,fontFamily:"monospace"}}>{counts[k]}</span><span style={{color:"#8b949e",fontSize:10}}>{v.label}</span></div>)}
+          </div>}
+        </div>
+      </div>
+      <div style={{maxWidth:1060,margin:"0 auto",padding:"0 20px 50px"}}>
+        <div style={{display:"flex",gap:0,borderBottom:"1px solid #1b1f27",marginBottom:24,overflowX:"auto"}}>
+          {tabs.map(t=><button key={t.id} onClick={()=>setTab(t.id)} style={{padding:"11px 18px",border:"none",cursor:"pointer",background:"transparent",fontFamily:"monospace",fontSize:11,fontWeight:700,whiteSpace:"nowrap",color:tab===t.id?"#00D4AA":"#8b949e",borderBottom:tab===t.id?"2px solid #00D4AA":"2px solid transparent"}}>{t.label}{t.count!==undefined&&<span style={{marginLeft:6,opacity:.5}}>({t.count})</span>}</button>)}
+        </div>
+        {tab==="architecture"&&<ArchView/>}
+        {tab==="gaps"&&<GapView gaps={gaps}/>}
+        {tab==="intel"&&<IntelView intel={intel}/>}
+        {tab==="timeline"&&<TimeView changelog={changelog}/>}
+      </div>
+      <div style={{borderTop:"1px solid #1b1f27",padding:"14px 20px",textAlign:"center"}}>
+        <span style={{color:"#8b949e",fontSize:10}}>Darren Humphries · Group CISO · CC BY 4.0 · Infosec Europe 2026 · <a href="https://github.com/greycardinal45/ai-hydra-tracker">GitHub</a></span>
+      </div>
+    </div>
+  );
+}
+
+function ArchView(){
+  const layers=[
+    {name:"OPERATOR CONTROL PLANE",tag:"Human",color:"#FFAA33",items:["Target Designation","Objective Definition","Risk Tolerance","Strategic Overrides","Sprint Review"]},
+    {name:"AI ORCHESTRATION ENGINE",tag:"Semi-Autonomous",color:"#58A6FF",items:["Attack Surface Assessment","Tool & Exploit Selection","Value Assessment","Adaptive Decisions","Gap Identification"]},
+    {name:"HYBRID C2 BACKBONE",tag:"Multi-Channel",color:"#00D4AA",items:["Cloud SaaS APIs","CDN-Fronted HTTPS","DNS Tunnelling","Polymorphic Timing","Channel Switching"]},
+  ];
+  const kc=[
+    {p:"01",n:"Recon & Initial Access",c:"#FF6B6B",t:["Vuln scanning","Exploit selection","Cred spray","AI phishing","Zero-day deploy"]},
+    {p:"02",n:"Credential Harvest",c:"#FF6B6B",t:["Mimikatz","LSASS dump","Kerberoasting","Browser creds","Token manip."]},
+    {p:"03",n:"Lateral Movement",c:"#FFAA33",t:["LotL: PS, WMI","RDP pivot","SMB enum","Remote admin","Svc acct"]},
+    {p:"04",n:"Discovery & Targeting",c:"#FFAA33",t:["AD enum","Share map","Keyword scan","Value assess","Obj. matching"]},
+    {p:"05",n:"Persistence",c:"#58A6FF",t:["Multi backdoors","Sched tasks","Registry","Svc accounts","Redundant"]},
+    {p:"06",n:"Collection & Exfil",c:"#58A6FF",t:["Data staging","Slow exfil","Selective","Vol. control","Ongoing"]},
+    {p:"07",n:"Evasion & Anti-Detect",c:"#BC8CFF",t:["Polymorphic","Log cleaning","EDR bypass","Proc. inject","Dormancy"]},
+  ];
+  return(
+    <div>
+      {layers.map((l,i)=>(
+        <div key={i} style={{marginBottom:10,padding:"14px 16px",background:"#161B22",borderRadius:8,borderLeft:"3px solid "+l.color}}>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
+            <span style={{color:l.color,fontSize:12,fontWeight:800,fontFamily:"monospace",textTransform:"uppercase",letterSpacing:1.5}}>{l.name}</span>
+            <span style={{color:"#8b949e",fontSize:10}}>({l.tag})</span>
+          </div>
+          <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+            {l.items.map((item,j)=><div key={j} style={{padding:"7px 12px",background:"#0d1117",borderRadius:4,color:"#8b949e",fontSize:11}}>{item}</div>)}
+          </div>
+        </div>
+      ))}
+      <div style={{marginBottom:10,padding:"14px 16px",background:"#161B22",borderRadius:8,border:"1px dashed rgba(188,140,255,.3)"}}>
+        <span style={{color:"#BC8CFF",fontSize:12,fontWeight:800,fontFamily:"monospace",textTransform:"uppercase",letterSpacing:1.5}}>Weapons Foundry</span>
+        <span style={{color:"#8b949e",fontSize:10,marginLeft:8}}>(Adversary SDLC)</span>
+        <div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:10}}>
+          {["Backlog Intake","Sprint Planning","Exploit Dev & Test","Implant Build","OTA Deploy"].map((t,i)=><div key={i} style={{padding:"5px 10px",background:"#0d1117",borderRadius:4,color:"#BC8CFF",fontSize:10,opacity:.8}}>{t}</div>)}
+        </div>
+      </div>
+      <div style={{padding:"14px 16px",background:"#161B22",borderRadius:8,borderTop:"3px solid #FF6B6B"}}>
+        <span style={{color:"#FF6B6B",fontSize:12,fontWeight:800,fontFamily:"monospace",textTransform:"uppercase",letterSpacing:1.5}}>Tool & TTP Layer</span>
+        <span style={{color:"#8b949e",fontSize:10,marginLeft:8}}>Kill chain — continuously updated via SDLC</span>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(120px,1fr))",gap:6,marginTop:12}}>
+          {kc.map((k,i)=>(
+            <div key={i} style={{padding:"10px",background:"#0d1117",borderRadius:4,borderTop:"2px solid "+k.c}}>
+              <div style={{color:k.c,fontSize:9,fontWeight:800,fontFamily:"monospace"}}>{k.p}</div>
+              <div style={{color:"#e6edf3",fontSize:10,fontWeight:700,marginTop:3,marginBottom:6}}>{k.n}</div>
+              {k.t.map((tool,j)=><div key={j} style={{color:"#8b949e",fontSize:9,marginBottom:2}}>· {tool}</div>)}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function GapView({gaps}){
+  const[filter,setFilter]=useState("all");
+  const[open,setOpen]=useState(null);
+  const counts=useMemo(()=>{const c={exists:0,partial:0,gap:0};gaps.forEach(g=>c[g.status]++);return c},[gaps]);
+  const total=counts.exists+counts.partial+counts.gap;
+  const filtered=filter==="all"?gaps:gaps.filter(g=>g.status===filter);
+  const phases=[...new Set(gaps.map(g=>g.phase))];
+
+  return(
+    <div>
+      <div style={{display:"flex",gap:2,height:8,borderRadius:4,overflow:"hidden",marginBottom:14}}>
+        <div style={{width:(counts.exists/total*100)+"%",background:STATUS.exists.color}}/>
+        <div style={{width:(counts.partial/total*100)+"%",background:STATUS.partial.color}}/>
+        <div style={{width:(counts.gap/total*100)+"%",background:STATUS.gap.color}}/>
+      </div>
+      <div style={{display:"flex",gap:8,marginBottom:22,flexWrap:"wrap"}}>
+        <button onClick={()=>setFilter("all")} style={{padding:"5px 12px",border:"1px solid "+(filter==="all"?"#e6edf3":"#21262d"),borderRadius:4,background:filter==="all"?"rgba(230,237,243,.06)":"transparent",color:"#e6edf3",cursor:"pointer",fontSize:11,fontFamily:"monospace"}}>All ({total})</button>
+        {Object.entries(STATUS).map(([k,v])=><button key={k} onClick={()=>setFilter(k)} style={{padding:"5px 12px",border:"1px solid "+(filter===k?v.color:"#21262d"),borderRadius:4,background:filter===k?v.color+"12":"transparent",color:v.color,cursor:"pointer",fontSize:11,fontFamily:"monospace"}}>{v.label} ({counts[k]})</button>)}
+      </div>
+      {phases.map(phase=>{
+        const items=filtered.filter(g=>g.phase===phase);
+        if(!items.length)return null;
+        return(
+          <div key={phase} style={{marginBottom:18}}>
+            <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:7}}>
+              <span style={{color:"#e6edf3",fontSize:11,fontWeight:800,fontFamily:"monospace",textTransform:"uppercase",letterSpacing:1.5}}>{phase}</span>
+              <div style={{flex:1,height:1,background:"#1b1f27"}}/>
+            </div>
+            {items.map(g=>(
+              <div key={g.id}>
+                <div onClick={()=>setOpen(open===g.id?null:g.id)} style={{display:"flex",alignItems:"center",padding:"8px 11px",marginBottom:2,background:STATUS[g.status].bg,borderLeft:"3px solid "+STATUS[g.status].color,borderRadius:"0 5px 5px 0",cursor:"pointer"}}>
+                  <Dot status={g.status}/>
+                  <span style={{flex:1,marginLeft:10,color:"#e6edf3",fontSize:12}}>{g.name}</span>
+                  {g.changed&&<span style={{fontSize:9,color:"#FFAA33",fontWeight:800,marginRight:10,fontFamily:"monospace"}}>⬆ MOVED</span>}
+                  <span style={{color:"#8b949e",fontSize:10,maxWidth:280,textAlign:"right"}}>{g.source}</span>
+                </div>
+                {open===g.id&&<div style={{margin:"0 0 5px 14px",padding:"9px 12px",background:"#161B22",borderRadius:5,borderLeft:"2px solid "+STATUS[g.status].color,fontSize:11}}>
+                  <div style={{color:"#8b949e",marginBottom:2}}>Updated: {g.updated}</div>
+                  {g.changed&&<div style={{color:"#FFAA33",marginBottom:2}}>Changed: {g.changed} (was: {g.previousStatus})</div>}
+                  <div style={{color:"#e6edf3"}}>{g.source}</div>
+                  {g.evidence&&<div style={{marginTop:5,color:"#58a6ff",fontFamily:"monospace",fontSize:10}}>Evidence: {g.evidence}</div>}
+                </div>}
+              </div>
+            ))}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function IntelView({intel}){
+  const[search,setSearch]=useState("");
+  const[typeFilter,setTypeFilter]=useState("all");
+  const types=[...new Set(intel.map(i=>i.type))];
+  const filtered=intel.filter(i=>typeFilter==="all"||i.type===typeFilter).filter(i=>!search||[i.title,i.summary,i.source].some(f=>f.toLowerCase().includes(search.toLowerCase())));
+  return(
+    <div>
+      <div style={{display:"flex",gap:8,marginBottom:16,flexWrap:"wrap"}}>
+        <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search intelligence..." style={{flex:1,minWidth:160,padding:"7px 10px",background:"#161B22",border:"1px solid #21262d",borderRadius:5,color:"#e6edf3",fontSize:12,outline:"none"}}/>
+        <select value={typeFilter} onChange={e=>setTypeFilter(e.target.value)} style={{padding:"7px 10px",background:"#161B22",border:"1px solid #21262d",borderRadius:5,color:"#8b949e",fontSize:11}}>
+          <option value="all">All types</option>
+          {types.map(t=><option key={t} value={t}>{t}</option>)}
+        </select>
+      </div>
+      <div style={{fontSize:10,color:"#8b949e",marginBottom:12,fontFamily:"monospace"}}>{filtered.length} documents</div>
+      {filtered.sort((a,b)=>b.date.localeCompare(a.date)).map(i=>(
+        <div key={i.id} style={{padding:"13px 15px",marginBottom:5,background:"#161B22",borderRadius:6,border:"1px solid #1b1f27"}}>
+          <div style={{display:"flex",alignItems:"center",gap:7,marginBottom:5,flexWrap:"wrap"}}>
+            <span style={{color:"#8b949e",fontSize:10,fontFamily:"monospace",minWidth:68}}>{i.date}</span>
+            <Badge severity={i.severity}/>
+            <span style={{fontSize:9,color:"#58A6FF",background:"#58A6FF10",padding:"1px 6px",borderRadius:3,fontFamily:"monospace"}}>{i.type}</span>
+          </div>
+          <div style={{color:"#e6edf3",fontSize:13,fontWeight:700,marginBottom:4}}>{i.title}</div>
+          <div style={{color:"#8b949e",fontSize:11,marginBottom:5,lineHeight:1.5}}>{i.summary}</div>
+          <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
+            <span style={{fontSize:10,color:"#8b949e"}}>{i.source}</span>
+            {i.url&&<a href={i.url} target="_blank" rel="noopener noreferrer" style={{fontSize:10}}>Source →</a>}
+            {i.gapsAffected.length>0&&<span style={{fontSize:9,color:"#00D4AA",fontFamily:"monospace"}}>Affects: {i.gapsAffected.join(", ")}</span>}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function TimeView({changelog}){
+  return(
+    <div>
+      {changelog.map((e,i)=>(
+        <div key={i} style={{display:"flex",gap:12}}>
+          <div style={{display:"flex",flexDirection:"column",alignItems:"center",minWidth:14}}>
+            <div style={{width:9,height:9,borderRadius:"50%",background:i===0?"#00D4AA":"#21262d",flexShrink:0,marginTop:4}}/>
+            {i<changelog.length-1&&<div style={{width:1,flex:1,background:"#1b1f27"}}/>}
+          </div>
+          <div style={{paddingBottom:20}}>
+            <div style={{color:"#8b949e",fontSize:10,fontFamily:"monospace",marginBottom:2}}>{e.date}</div>
+            <div style={{color:"#e6edf3",fontSize:12}}>{e.entry}</div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+[
+  {
+    "date": "2026-06-04",
+    "entry": "Post-Infosec Europe review: 8 additional intelligence citations added from keynote research \u2014 APT34/35/MuddyWater C2 techniques, GTIG GTG-1002 autonomous operations, frontier model trajectory (0% \u2192 73% in 12 months), 80% ransomware AI adoption, 76% polymorphic malware, Lumu AI-C2 prediction. Total intelligence documents: 25."
+  },
+  {
+    "date": "2026-06-04",
+    "entry": "Presented framework at Infosec Europe. Published architecture and gap analysis. Added Horizon3 (NodeZero), PentAGI, and Node4 citations."
+  },
+  {
+    "date": "2026-05-14",
+    "entry": "Mini Shai-Hulud Wave 5 case study added. Five-wave evolution mapped to Hydra architecture."
+  },
+  {
+    "date": "2026-05-11",
+    "entry": "GTIG AI Threat Tracker published. Three gaps moved from RED to AMBER: zero-day weaponisation, dynamic C2 rotation, AI real-time evasion."
+  },
+  {
+    "date": "2026-05-01",
+    "entry": "Gap analysis completed. 34 capabilities assessed: 17 exist, 9 partial, 8 gaps."
+  },
+  {
+    "date": "2026-04-15",
+    "entry": "Anthropic Mythos Preview and Project Glasswing findings integrated into framework."
+  },
+  {
+    "date": "2026-03-27",
+    "entry": "AI Hydra framework created. Operational architecture defined: operator control plane, AI orchestration engine, hybrid C2 backbone, tool/TTP layer, and adversary SDLC weapons foundry."
+  },
+  {
+    "date": "2026-02-04",
+    "entry": "Think tank working group established to review the threat and viability of AI-enabled offensive cyber. Scope defined beyond phishing, deepfake, and malware engine evasion \u2014 specifically examining advanced autonomous capabilities including AI-driven attack orchestration, exploit development, and adaptive C2."
+  }
+]
