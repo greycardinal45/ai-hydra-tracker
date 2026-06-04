@@ -46,17 +46,23 @@ function SeverityBadge({ severity }) {
 
 function TabBar({ tabs, active, onChange }) {
   return (
-    <div style={{ display: "flex", gap: 0, borderBottom: "1px solid #1b1f27", marginBottom: 24, overflowX: "auto" }}>
-      {tabs.map(t => (
-        <button key={t.id} onClick={() => onChange(t.id)} style={{
-          padding: "11px 18px", border: "none", cursor: "pointer", background: "transparent",
-          fontFamily: "monospace", fontSize: 11, fontWeight: 700, whiteSpace: "nowrap",
-          color: active === t.id ? "#00D4AA" : "#6e7681",
-          borderBottom: active === t.id ? "2px solid #00D4AA" : "2px solid transparent",
-        }}>
-          {t.label}{t.count !== undefined && <span style={{ marginLeft: 6, opacity: 0.5 }}>({t.count})</span>}
-        </button>
-      ))}
+    <div style={{ display: "flex", marginBottom: 24, overflowX: "auto" }}>
+      <div style={{ display: "inline-flex", gap: 3, padding: 3, background: "#161B22", border: "1px solid #21262d", borderRadius: 8 }}>
+        {tabs.map(t => {
+          const on = active === t.id;
+          return (
+            <button key={t.id} onClick={() => onChange(t.id)} style={{
+              padding: "8px 16px", border: "none", cursor: "pointer", borderRadius: 5,
+              fontFamily: "monospace", fontSize: 11, fontWeight: on ? 800 : 700, whiteSpace: "nowrap",
+              background: on ? "#00D4AA" : "transparent",
+              color: on ? "#0D1117" : "#8B949E",
+              transition: "background .15s, color .15s",
+            }}>
+              {t.label}{t.count !== undefined && <span style={{ marginLeft: 6, opacity: on ? 0.65 : 0.5 }}>({t.count})</span>}
+            </button>
+          );
+        })}
+      </div>
     </div>
   );
 }
