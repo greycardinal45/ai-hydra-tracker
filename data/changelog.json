@@ -1,7 +1,7 @@
 [
   {
     "date": "2026-06-04",
-    "entry": "Post-Infosec Europe review: 8 additional intelligence citations added from keynote research \u2014 APT34/35/MuddyWater C2 techniques, GTIG GTG-1002 autonomous operations, frontier model trajectory (0% \u2192 73% in 12 months), 80% ransomware AI adoption, 76% polymorphic malware, Lumu AI-C2 prediction. Total intelligence documents: 25."
+    "entry": "Post-Infosec Europe review: 8 additional intelligence citations added — APT34/35/MuddyWater C2, GTIG GTG-1002 autonomous ops, frontier model trajectory, 80% ransomware AI adoption, 76% polymorphic malware, Lumu AI-C2 prediction. Total: 25 documents."
   },
   {
     "date": "2026-06-04",
@@ -29,6 +29,6 @@
   },
   {
     "date": "2026-02-04",
-    "entry": "Think tank working group established to review the threat and viability of AI-enabled offensive cyber. Scope defined beyond phishing, deepfake, and malware engine evasion \u2014 specifically examining advanced autonomous capabilities including AI-driven attack orchestration, exploit development, and adaptive C2."
+    "entry": "Think tank working group established to review the threat and viability of AI-enabled offensive cyber. Scope defined beyond phishing, deepfake, and malware engine evasion — specifically examining advanced autonomous capabilities including AI-driven attack orchestration, exploit development, and adaptive C2."
   }
 ]
