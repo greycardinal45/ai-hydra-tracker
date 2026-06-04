@@ -88,7 +88,7 @@ Edit `data/changelog.json` and add to the top of the array:
 
 | File | Purpose |
 |------|---------|
-| `data/gaps.json` | 34 capability assessments with status, source, and evidence links |
+| `data/gaps.json` | 32 capability assessments with status, source, and evidence links |
 | `data/intel.json` | Intelligence document registry with severity, source URLs, and gap mappings |
 | `data/changelog.json` | Timeline of framework updates |
 
