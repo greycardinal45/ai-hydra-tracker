@@ -311,21 +311,173 @@ function IntelRegistry({ intel }) {
 }
 
 // ============================================
-// TIMELINE
+// TIMELINE — capability evolution (driven by intel publication dates)
 // ============================================
-function Timeline({ changelog }) {
+const TL_BANDS = ["exists", "partial", "gap"];
+const TL_SHORT = { exists: "EXISTS", partial: "PARTIAL", gap: "GAP" };
+function tlRibbon(x0, x1, a0, a1, b0, b1) {
+  const xm = (x0 + x1) / 2;
+  return `M ${x0} ${a0} C ${xm} ${a0}, ${xm} ${b0}, ${x1} ${b0} L ${x1} ${b1} C ${xm} ${b1}, ${xm} ${a1}, ${x0} ${a1} Z`;
+}
+
+function Timeline({ gaps, intel }) {
+  const [mode, setMode] = useState("heatmap");
+  const [sel, setSel] = useState(null);
+  const [hover, setHover] = useState(null);
+
+  const model = useMemo(() => {
+    const byId = {}; intel.forEach(c => byId[c.id] = c);
+    const capById = {}; gaps.forEach(g => capById[g.id] = g);
+    const trans = {};
+    gaps.forEach(g => { if (g.evidence && g.previousStatus && byId[g.evidence]) trans[g.id] = { date: byId[g.evidence].date, from: g.previousStatus, to: g.status }; });
+    const statusAt = (g, d) => { const t = trans[g.id]; return t ? (d >= t.date ? t.to : t.from) : g.status; };
+    const strengthAt = (id, d) => intel.reduce((n, c) => n + ((c.date <= d && (c.gapsAffected || []).includes(id)) ? 1 : 0), 0);
+    const dates = Array.from(new Set(intel.map(c => c.date))).sort();
+    const phases = []; gaps.forEach(g => { if (!phases.includes(g.phase)) phases.push(g.phase); });
+    const rows = []; phases.forEach(ph => gaps.filter(g => g.phase === ph).forEach(g => rows.push(g)));
+    const rank = { exists: 0, partial: 1, gap: 2 };
+    const order = [...rows].map(g => g.id).sort((a, b) => rank[capById[a].status] - rank[capById[b].status] || a.localeCompare(b));
+    const tdates = Array.from(new Set(Object.values(trans).map(t => t.date))).sort();
+    const milestones = Array.from(new Set([dates[0], ...tdates, dates[dates.length - 1]])).sort();
+    let maxStr = 1; rows.forEach(g => dates.forEach(d => { const s = strengthAt(g.id, d); if (s > maxStr) maxStr = s; }));
+    return { byId, capById, trans, statusAt, strengthAt, dates, phases, rows, order, milestones, maxStr };
+  }, [gaps, intel]);
+
+  const { byId, capById, trans, statusAt, strengthAt, dates, phases, rows, order, milestones, maxStr } = model;
+  if (!dates.length) return null;
+  const counts = (d) => { const c = { exists: 0, partial: 0, gap: 0 }; rows.forEach(g => c[statusAt(g, d)]++); return c; };
+
+  // ---------- heatmap geometry ----------
+  const LX = 248, TOP = 84, CW = Math.max(30, Math.min(46, Math.round(800 / dates.length))), CH = 18, BOT = 92;
+  const HW = LX + dates.length * CW + 22, HH = TOP + rows.length * CH + BOT;
+  const isMilestone = j => j > 0 && rows.some(g => statusAt(g, dates[j]) !== statusAt(g, dates[j - 1]));
+
+  // ---------- story (alluvial) layout ----------
+  const PR = 0.16, PB = 2.2;
+  const story = (() => {
+    const cols = milestones.map(d => {
+      const th = {}, st = {}; order.forEach(id => { th[id] = 0.8 + 0.5 * strengthAt(id, d); st[id] = statusAt(capById[id], d); });
+      const bc = { exists: [], partial: [], gap: [] }; order.forEach(id => bc[st[id]].push(id));
+      let tot = PB * 2; TL_BANDS.forEach(b => { tot += bc[b].reduce((s, id) => s + th[id], 0) + PR * Math.max(0, bc[b].length - 1); });
+      return { th, st, bc, tot, date: d };
+    });
+    const H = Math.max(...cols.map(c => c.tot));
+    const pos = cols.map(c => { let y = (H - c.tot) / 2; const p = {}; TL_BANDS.forEach(b => { c.bc[b].forEach(id => { p[id] = [y, y + c.th[id]]; y += c.th[id] + PR; }); if (c.bc[b].length) y -= PR; y += PB; }); return p; });
+    return { cols, pos, H };
+  })();
+  const N = milestones.length, SLX = 70, SCW = Math.min(220, Math.round(1180 / Math.max(1, N - 1))), SNW = 24, sTop = 64, sScale = 470 / story.H;
+  const SW = SLX + (N - 1) * SCW + SNW + 30, SH = sTop + story.H * sScale + 86;
+  const SY = v => sTop + v * sScale;
+  const moversAt = (i) => i === 0 ? [] : order.filter(id => story.cols[i].st[id] !== story.cols[i - 1].st[id]);
+
+  const fullbleed = { position: "relative", left: "50%", width: "100vw", marginLeft: "-50vw", padding: "0 16px" };
+
   return (
-    <div>
-      {changelog.map((e, i) => (
-        <div key={i} style={{ display: "flex", gap: 14 }}>
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", minWidth: 16 }}>
-            <div style={{ width: 9, height: 9, borderRadius: "50%", background: i === 0 ? "#00D4AA" : "#21262d", flexShrink: 0, marginTop: 4 }} />
-            {i < changelog.length - 1 && <div style={{ width: 1, flex: 1, background: "#1b1f27" }} />}
+    <div style={fullbleed}>
+      <div style={{ maxWidth: 1480, margin: "0 auto" }}>
+        <p style={{ color: "#8B949E", fontSize: 12, marginBottom: 14, lineHeight: 1.5 }}>
+          How the {rows.length} capabilities strengthened over time — anchored to the <b style={{ color: "#E6EDF3" }}>actual publication dates of the {intel.length} intelligence items</b> (a capability moves when the evidence was published, not when it was logged). Colour = status · brightness / ribbon thickness = weight of corroborating intel · ◆ = a status change. Click any step for the intel behind it.
+        </p>
+        <div style={{ display: "flex", marginBottom: 16 }}>
+          <div style={{ display: "inline-flex", gap: 3, padding: 3, background: "#161B22", border: "1px solid #21262d", borderRadius: 8 }}>
+            {[{ id: "heatmap", label: "Backbone · heatmap" }, { id: "story", label: "Story · milestones" }].map(t => {
+              const on = mode === t.id;
+              return <button key={t.id} onClick={() => { setMode(t.id); setSel(null); }} style={{ padding: "7px 14px", border: "none", borderRadius: 5, fontFamily: "monospace", fontSize: 11, fontWeight: on ? 800 : 700, background: on ? "#00D4AA" : "transparent", color: on ? "#0D1117" : "#8B949E" }}>{t.label}</button>;
+            })}
           </div>
-          <div style={{ paddingBottom: 22 }}>
-            <div style={{ color: "#8B949E", fontSize: 10, fontFamily: "monospace", marginBottom: 3 }}>{e.date}</div>
-            <div style={{ color: "#E6EDF3", fontSize: 12 }}>{e.entry}</div>
+        </div>
+
+        {mode === "heatmap" && (
+          <div style={{ overflowX: "auto" }}>
+            <svg viewBox={`0 0 ${HW} ${HH}`} style={{ width: "100%", minWidth: Math.min(HW, 980), display: "block" }}>
+              <text x={LX} y={18} fill="#8B949E" fontSize="10" fontFamily="monospace">AGGREGATE  ·  gap → partial → exists  (/{rows.length})</text>
+              {dates.map((d, j) => {
+                const c = counts(d), x = LX + j * CW + CW * 0.16, bw = CW * 0.68, y0 = 26, hgt = 48, t = rows.length;
+                const hg = hgt * c.gap / t, hp = hgt * c.partial / t, he = hgt * c.exists / t;
+                return (<g key={d}>
+                  <rect x={x} y={y0} width={bw} height={hg} fill={STATUS.gap.color} opacity="0.9" />
+                  <rect x={x} y={y0 + hg} width={bw} height={hp} fill={STATUS.partial.color} opacity="0.9" />
+                  <rect x={x} y={y0 + hg + hp} width={bw} height={he} fill={STATUS.exists.color} opacity="0.9" />
+                </g>);
+              })}
+              {(() => { const out = []; let y = TOP; phases.forEach((ph, pi) => { const n = rows.filter(g => g.phase === ph).length, y0 = y, y1 = y + n * CH;
+                out.push(<g key={ph}>
+                  {pi % 2 === 1 && <rect x={LX} y={y0} width={dates.length * CW} height={n * CH} fill="#ffffff" opacity="0.02" />}
+                  <line x1={6} y1={y1} x2={LX + dates.length * CW} y2={y1} stroke="#1b1f27" strokeWidth="0.6" />
+                  <text x={9} y={(y0 + y1) / 2} fill="#8B949E" fontSize="7.5" fontFamily="monospace" transform={`rotate(-90 9 ${(y0 + y1) / 2})`} textAnchor="middle">{ph.toUpperCase().slice(0, 22)}</text>
+                </g>); y = y1; }); return out; })()}
+              {rows.map((g, i) => { const y = TOP + i * CH; return (<g key={g.id}>
+                <text x={LX - 60} y={y + CH / 2 + 3} fill="#E6EDF3" fontSize="9" fontFamily="monospace" textAnchor="end">{g.id}</text>
+                <text x={LX - 8} y={y + CH / 2 + 3} fill="#8B949E" fontSize="8" textAnchor="end">{g.name.slice(0, 30)}</text>
+                {dates.map((d, j) => { const s = statusAt(g, d), strv = strengthAt(g.id, d), op = 0.24 + 0.76 * (strv / maxStr), x = LX + j * CW + CW * 0.1, w = CW * 0.8;
+                  return <rect key={d} x={x} y={y + 1.5} width={w} height={CH - 3} rx="2" fill={STATUS[s].color} fillOpacity={op}
+                    stroke={hover && hover.id === g.id && hover.d === d ? "#fff" : "none"} strokeWidth="1"
+                    onMouseEnter={() => setHover({ id: g.id, d, s, strv })} onMouseLeave={() => setHover(null)} />;
+                })}
+              </g>); })}
+              {dates.map((d, j) => { const ms = isMilestone(j), x = LX + j * CW + CW / 2; return (<g key={d}>
+                {ms && <rect x={LX + j * CW} y={TOP - 2} width={CW} height={rows.length * CH + 4} fill="#ffffff" opacity="0.05" />}
+                <rect x={LX + j * CW} y={TOP - 2} width={CW} height={rows.length * CH + 4} fill="transparent" style={{ cursor: "pointer" }} onClick={() => setSel(d)} />
+                <text x={x} y={TOP + rows.length * CH + 12} fill={ms ? "#fff" : (sel === d ? "#00D4AA" : "#8B949E")} fontSize="8.5" fontFamily="monospace" fontWeight={ms ? "bold" : "normal"} transform={`rotate(90 ${x} ${TOP + rows.length * CH + 12})`} textAnchor="start">{d}{ms ? "  ◆" : ""}</text>
+              </g>); })}
+              {hover && <g>
+                <rect x={LX + 8} y={4} width={232} height={34} rx="4" fill="#161B22" stroke="#21262d" />
+                <text x={LX + 16} y={18} fill="#E6EDF3" fontSize="9" fontFamily="monospace">{hover.id} · {TL_SHORT[hover.s]}</text>
+                <text x={LX + 16} y={31} fill="#8B949E" fontSize="8">{capById[hover.id].name.slice(0, 32)} · strength {hover.strv}</text>
+              </g>}
+            </svg>
           </div>
+        )}
+
+        {mode === "story" && (
+          <div style={{ overflowX: "auto" }}>
+            <svg viewBox={`0 0 ${SW} ${SH}`} style={{ width: "100%", minWidth: Math.min(SW, 900), display: "block" }}>
+              {TL_BANDS.map(b => { const ids = story.cols[0].bc[b]; if (!ids.length) return null; const ys = ids.map(id => story.pos[0][id]); const y0 = Math.min(...ys.map(a => a[0])), y1 = Math.max(...ys.map(a => a[1]));
+                return <text key={b} x={SLX - 46} y={SY((y0 + y1) / 2)} fill={STATUS[b].color} fontSize="11" fontWeight="bold" fontFamily="monospace" transform={`rotate(-90 ${SLX - 46} ${SY((y0 + y1) / 2)})`} textAnchor="middle">{TL_SHORT[b]}</text>;
+              })}
+              {Array.from({ length: N - 1 }).map((_, i) => { const x0 = SLX + i * SCW + SNW, x1 = SLX + (i + 1) * SCW;
+                return order.map(id => { const [a0, a1] = story.pos[i][id], [b0, b1] = story.pos[i + 1][id], mv = story.cols[i].st[id] !== story.cols[i + 1].st[id], col = STATUS[mv ? story.cols[i + 1].st[id] : story.cols[i].st[id]].color, isM = !!model.trans[id];
+                  return <path key={id + i} d={tlRibbon(x0, x1, SY(a0), SY(a1), SY(b0), SY(b1))} fill={col} fillOpacity={isM ? (mv ? 0.95 : 0.6) : 0.4} stroke={mv ? "#fff" : "none"} strokeWidth={mv ? 1.1 : 0} />;
+                });
+              })}
+              {milestones.map((d, i) => { const x = SLX + i * SCW, c = counts(d), mv = moversAt(i); return (<g key={d}>
+                {order.map(id => { const [y0, y1] = story.pos[i][id]; return <rect key={id} x={x} y={SY(y0)} width={SNW} height={SY(y1) - SY(y0)} fill={STATUS[story.cols[i].st[id]].color} stroke="#0D1117" strokeWidth="0.4" opacity={model.trans[id] ? 0.95 : 0.78} />; })}
+                <rect x={x - 6} y={sTop - 6} width={SNW + 12} height={story.H * sScale + 12} fill="transparent" style={{ cursor: "pointer" }} onClick={() => setSel(d)} />
+                <text x={x + SNW / 2} y={sTop - 30} fill="#E6EDF3" fontSize="10" fontWeight="bold" textAnchor="middle">{i === 0 ? "First intel" : (mv.length ? mv.join(", ") : "—")}</text>
+                <text x={x + SNW / 2} y={sTop - 17} fill="#8B949E" fontSize="8.5" fontFamily="monospace" textAnchor="middle">{d}</text>
+                <text x={x + SNW / 2} y={SY(story.H) + 18} fill="#E6EDF3" fontSize="9.5" fontFamily="monospace" fontWeight="bold" textAnchor="middle">{c.exists}/{c.partial}/{c.gap}</text>
+              </g>); })}
+            </svg>
+          </div>
+        )}
+
+        <TimelineDetail date={sel} intel={intel} model={model} />
+      </div>
+    </div>
+  );
+}
+
+function TimelineDetail({ date, intel, model }) {
+  if (!date) return <div style={{ color: "#8B949E", fontSize: 12, padding: "14px 2px" }}>Select a step above to see the intelligence published at that date and any status changes it drove.</div>;
+  const cards = intel.filter(c => c.date === date).sort((a, b) => a.title.localeCompare(b.title));
+  const moves = Object.entries(model.trans).filter(([id, t]) => t.date === date);
+  const c = model.counts ? model.counts(date) : (() => { const cc = { exists: 0, partial: 0, gap: 0 }; model.rows.forEach(g => cc[model.statusAt(g, date)]++); return cc; })();
+  return (
+    <div style={{ marginTop: 14, padding: "14px 16px", background: "#161B22", border: "1px solid #21262d", borderRadius: 8 }}>
+      <div style={{ display: "flex", gap: 14, alignItems: "center", marginBottom: 10, flexWrap: "wrap" }}>
+        <span style={{ fontFamily: "monospace", fontWeight: 800, fontSize: 13 }}>{date}</span>
+        {TL_BANDS.map(b => <span key={b} style={{ display: "flex", alignItems: "center", gap: 5 }}><StatusDot status={b} size={7} /><span style={{ color: STATUS[b].color, fontFamily: "monospace", fontWeight: 800, fontSize: 12 }}>{c[b]}</span><span style={{ color: "#8B949E", fontSize: 10 }}>{TL_SHORT[b]}</span></span>)}
+      </div>
+      {moves.length > 0 && <div style={{ marginBottom: 10 }}>{moves.map(([id, t]) => <span key={id} style={{ display: "inline-block", marginRight: 8, marginBottom: 4, fontSize: 10, fontFamily: "monospace", color: "#fff", background: STATUS[t.to].color + "22", border: "1px solid " + STATUS[t.to].color, borderRadius: 4, padding: "2px 7px" }}>{id}: {t.from} → {t.to} ◆</span>)}</div>}
+      <div style={{ fontSize: 10, color: "#8B949E", marginBottom: 8, fontFamily: "monospace" }}>{cards.length} intelligence item(s) published this date</div>
+      {cards.map(c => (
+        <div key={c.id} style={{ padding: "8px 0", borderTop: "1px solid #1b1f27" }}>
+          <div style={{ display: "flex", gap: 8, alignItems: "center", marginBottom: 3, flexWrap: "wrap" }}>
+            <span style={{ fontSize: 8.5, fontWeight: 800, color: SEVERITY[c.severity].color, fontFamily: "monospace", letterSpacing: 1 }}>{SEVERITY[c.severity].label}</span>
+            <span style={{ fontSize: 8.5, color: "#58A6FF", background: "#58A6FF10", padding: "1px 6px", borderRadius: 3, fontFamily: "monospace" }}>{c.type}</span>
+            {c.gapsAffected.length > 0 && <span style={{ fontSize: 9, color: "#00D4AA", fontFamily: "monospace" }}>affects: {c.gapsAffected.join(", ")}</span>}
+          </div>
+          <div style={{ fontSize: 12, color: "#E6EDF3", fontWeight: 600 }}>{c.title}</div>
         </div>
       ))}
     </div>
@@ -383,12 +535,12 @@ function App() {
           { id: "architecture", label: "Architecture" },
           { id: "gaps", label: "Gap Analysis", count: gaps.length },
           { id: "intel", label: "Intelligence", count: intel.length },
-          { id: "timeline", label: "Timeline", count: changelog.length },
+          { id: "timeline", label: "Timeline", count: intel.length },
         ]} active={tab} onChange={setTab} />
         {tab === "architecture" && <Architecture />}
         {tab === "gaps" && <GapAnalysis gaps={gaps} />}
         {tab === "intel" && <IntelRegistry intel={intel} />}
-        {tab === "timeline" && <Timeline changelog={changelog} />}
+        {tab === "timeline" && <Timeline gaps={gaps} intel={intel} />}
       </div>
       <div style={{ borderTop: "1px solid #1b1f27", padding: "14px 20px", textAlign: "center" }}>
         <span style={{ color: "#8B949E", fontSize: 10 }}>Darren Humphries · Group CISO · CC BY 4.0 · Infosec Europe 2026 · <a href="https://github.com/greycardinal45/ai-hydra-tracker">GitHub</a></span>
