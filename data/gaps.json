@@ -94,9 +94,12 @@
     "id": "ao-3",
     "phase": "AI Orchestration",
     "name": "Environment value assessment",
-    "status": "gap",
-    "source": "No demonstrated AI evaluating business context",
-    "updated": "2026-06-04"
+    "status": "partial",
+    "source": "Sandbox demonstration of environment value assessment: Ransomware 3.0 (NYU Tandon POC) has an LLM evaluate host context (PC vs server vs controller) and select objective and high-value files accordingly. POC-grade; not field-deployed.",
+    "updated": "2026-06-04",
+    "changed": "2026-06-04",
+    "previousStatus": "gap",
+    "evidence": "intel-ransomware3"
   },
   {
     "id": "ao-4",
@@ -169,9 +172,12 @@
     "id": "pc-2",
     "phase": "Persistence & Collection",
     "name": "Selective data identification by LLM",
-    "status": "partial",
-    "source": "LLMs can classify documents — not integrated into malware",
-    "updated": "2026-05-01"
+    "status": "exists",
+    "source": "LLM-driven selective data identification documented in production: PromptSteal (APT28) generates collection commands at runtime via Qwen2.5-Coder; QuietVault uses on-host AI tooling to hunt secrets.",
+    "updated": "2026-06-04",
+    "changed": "2026-06-04",
+    "previousStatus": "partial",
+    "evidence": "intel-promptsteal"
   },
   {
     "id": "pc-3",
@@ -261,7 +267,8 @@
     "phase": "AI Orchestration",
     "name": "Selective IP targeting (capture the flag)",
     "status": "gap",
-    "source": "No real-world autonomous IP exfiltration demonstrated",
-    "updated": "2026-06-04"
+    "source": "Supporting evidence accumulating (Ransomware 3.0 high-value-file selection; PromptSteal collection). Held at GAP: file-value selection in a benign sandbox is not mission-objective IP exfiltration under live defensive pressure. A gap that stays red on ambiguous evidence is stronger than one moved and walked back.",
+    "updated": "2026-06-04",
+    "evidence": "intel-ransomware3"
   }
 ]

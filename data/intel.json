@@ -400,5 +400,110 @@
       "c2-3",
       "c2-5"
     ]
+  },
+  {
+    "id": "intel-promptsteal",
+    "date": "2025-11-05",
+    "title": "PromptSteal (APT28) and QuietVault — in-the-wild LLM-driven data collection",
+    "source": "GTIG",
+    "type": "Nation-state AI ops",
+    "severity": "high",
+    "url": "https://cloud.google.com/blog/topics/threat-intelligence/distillation-experimentation-integration-ai-adversarial-use",
+    "summary": "GTIG documented two LLM-enabled malware families used in the wild. QuietVault, a credential stealer, uses an AI prompt and on-host AI CLI tools to search a compromised host for additional secrets to exfiltrate. PromptSteal (also tracked as LameHug; first reported by CERT-UA in July 2025), attributed to Russian APT28, is a data miner that queries Qwen2.5-Coder-32B-Instruct via the Hugging Face API to generate one-line Windows commands at runtime, which it executes to collect and exfiltrate data.",
+    "analysis": "This is the IP-theft lane of the thesis with an LLM in the loop, deployed by a nation-state rather than demonstrated in a lab — the 'steal like a state-sponsored espionage campaign' leg, AI-driven. It advances pc-2 (selective data ID by LLM) and supports ao-2 (real-time tool selection): the malware ships no fixed collection routine but synthesises collection commands against the live host. It is the production-use counterpart to the Ransomware 3.0 POC (intel-ransomware3) — that paper demonstrates value-based selection in a sandbox; PromptSteal demonstrates LLM-driven dynamic collection in the field. Limitation: collection is broad (secrets, documents) rather than selective against a defined IP objective function, so it does not reach ip-1.",
+    "capabilityImpact": "Moves pc-2 from PARTIAL to EXISTS. LLM-driven data identification and dynamic collection-command generation is documented in production APT use, not just sandbox.",
+    "gapsAffected": [
+      "pc-2",
+      "ao-2",
+      "ip-1"
+    ]
+  },
+  {
+    "id": "intel-ransomware3",
+    "date": "2025-08-28",
+    "title": "Ransomware 3.0 — self-composing, LLM-orchestrated ransomware POC",
+    "source": "NYU Tandon (arXiv 2508.20444)",
+    "type": "Autonomous malware",
+    "severity": "high",
+    "url": "https://arxiv.org/abs/2508.20444",
+    "summary": "Academic proof-of-concept in which an LLM orchestrates the full ransomware lifecycle. At runtime the model is queried to synthesise environment-specific payload code, autonomously selects high-value files, and composes tailored ransom notes. Three payload classes — exfiltrate, encrypt, destroy — are mapped to context: exfiltration on a personal computer, encryption on a company server, destruction on a controller. Each generated instance differs. Implemented and demonstrated in a controlled environment; not observed in the wild.",
+    "analysis": "The closest published artefact to the Hydra integration thesis: a single POC that fuses selective high-value targeting (IP-theft lane), environment-aware value assessment, and dynamic payload generation (the foundry function pulled inline). It speaks to two red gaps. For ao-3 (environment value assessment) it is a sandbox demonstration of an AI evaluating context — PC vs server vs controller — and choosing objective accordingly, which under the framework's GAP-to-PARTIAL criteria is the trigger. For ip-1 (selective IP targeting) it is supporting but not sufficient: file-value selection in a benign sandbox is not mission-objective IP exfiltration under live defensive pressure. Cross-references intel-promptsteal (the in-the-wild collection counterpart) and intel-shai-hulud (the worm-lane component this POC lacks). Honest limitation: research, not a documented operation; the move to PARTIAL is POC-grade and must be labelled as such. Counter-position to retain: SentinelOne's read that LLMs are producing industrialised extortion, not superintelligent malware.",
+    "capabilityImpact": "Moves ao-3 from GAP to PARTIAL (sandbox demonstration of environment value assessment, POC-grade). Supporting evidence for ip-1; ip-1 recommended to stay GAP pending adversarial-conditions demonstration.",
+    "gapsAffected": [
+      "ao-3",
+      "ip-1",
+      "pc-2"
+    ]
+  },
+  {
+    "id": "intel-miasma",
+    "date": "2026-06-01",
+    "title": "Miasma — Red Hat npm scope compromised by commoditised Mini Shai-Hulud variant",
+    "source": "Aikido Security / Unit 42 / Upwind",
+    "type": "Supply chain worm",
+    "severity": "high",
+    "url": "https://www.aikido.dev/blog/red-hat-npm-packages-compromised-credential-stealing-worm",
+    "summary": "On 1 June 2026 a Mini Shai-Hulud variant tracked as Miasma compromised the @redhat-cloud-services npm scope — 96 versions across 32 packages. Weekly-download counts diverge by source (Aikido ~116,991; Unit 42 ~80,000); quote as a range. Packages were published via GitHub Actions OIDC, indicating CI/CD pipeline compromise rather than a stolen npm token, bypassing code review. Reported tradecraft includes weaponisation of legitimate AWS services for two C2 channels and Bun runtime smuggling for EDR evasion. Follows TeamPCP's 12 May 2026 public release of the full Mini Shai-Hulud source code on GitHub and BreachForums; Miasma is among the first copycats.",
+    "analysis": "Extends the Mini Shai-Hulud case study (intel-shai-hulud), the framework's embryonic Hydra. The significance is commoditisation, not new capability: open-sourcing the worm moves these supply-chain capabilities toward Tier 3 commodity reach, and the OIDC publication path demonstrates CI/CD-pipeline compromise as a credential-free initial access route. The novel AWS-service C2 is supporting evidence for c2-1 (C2 via legitimate cloud, already EXISTS) and c2-4 (dynamic C2 rotation, PARTIAL). Critically, every capability Miasma demonstrates is already EXISTS; what remains absent is the AI orchestration layer (ao-3, ao-5, ip-1) that defines the open Hydra gaps. Everything on the left of the diagram is real; the right-hand side is still the thesis.",
+    "capabilityImpact": "No status change. Commoditisation and supporting evidence for supply-chain worm capabilities (already EXISTS), c2-1, and c2-4. Lowers actor tier; does not add the AI orchestration layer that defines the remaining gaps.",
+    "gapsAffected": [
+      "c2-1",
+      "c2-4",
+      "ao-3",
+      "ip-1"
+    ]
+  },
+  {
+    "id": "intel-clawchain",
+    "date": "2026-05-18",
+    "title": "Claw Chain — four chained CVEs hijack OpenClaw autonomous AI agents",
+    "source": "Cyera",
+    "type": "Threat model",
+    "severity": "medium",
+    "url": "https://www.cyera.com/blog/claw-chain-cyera-research-unveil-four-chainable-vulnerabilities-in-openclaw",
+    "summary": "Cyera disclosed four chainable vulnerabilities (CVE-2026-44112, -44113, -44115, -44118) in OpenClaw, an open-source autonomous AI agent platform, affecting versions before the 23 April 2026 patch. The chain moves from sandbox code execution (via malicious plugin, prompt injection, or compromised input) through credential and file access and privilege escalation to host-level persistence. CVE-2026-44112, a TOCTOU sandbox-escape, is reported as CVSS 9.6 by most sources, though some databases list a lower score — verify before citing. Each step mimics legitimate agent behaviour, hindering detection.",
+    "analysis": "Adjacent evidence, not direct. This is an attack ON an AI agent — the agent-as-execution-surface — rather than a demonstration of AI autonomously orchestrating an offensive campaign, so it does not advance a Hydra offensive capability on its own. Its framework value is architectural: it validates the assumption that the orchestration substrate is the soft target, consistent with GTIG's May 2026 finding that frontier models stay resilient while orchestration layers, connectors and skill files are vulnerable. A hijacked, broadly-permissioned agent is a plausible future delivery vector for ao-1/ao-2 and the legitimate-user-mimicry gap (c2-5) — hypothesis, not demonstrated capability, and must not be used to move c2-5. Part of the broader agent-hijack pattern (intel-agent-hijack).",
+    "capabilityImpact": "No status change. Adjacent architectural evidence that the AI orchestration substrate is fragile and hijackable.",
+    "gapsAffected": [
+      "c2-5",
+      "ao-1",
+      "ao-2",
+      "cl-4"
+    ]
+  },
+  {
+    "id": "intel-agent-hijack",
+    "date": "2026-02-01",
+    "title": "Agent hijacking — stealing the orchestration layer rather than building it",
+    "source": "CrowdStrike 2026 Global Threat Report / OWASP Agentic Top 10 / McKinsey red-team",
+    "type": "Threat model",
+    "severity": "medium",
+    "url": "https://venturebeat.com/security/adversaries-hijacked-ai-security-tools-at-90-organizations-the-next-wave-has-write-access-to-the-firewall",
+    "summary": "Multiple independent sources document compromise and hijacking of deployed autonomous AI agents. CrowdStrike's 2026 Global Threat Report states adversaries compromised AI tools at 90+ organisations in 2025, with newer autonomous tools holding greater privilege, and reports AI-enabled adversary operations up 89% year-on-year. OWASP's December 2025 Top 10 for Agentic Applications codifies Agent Goal Hijacking, Tool Misuse, and Identity & Privilege Abuse. A McKinsey red-team saw an autonomous agent gain broad system access in under two hours. Claw Chain (intel-clawchain) and Microsoft 365 Copilot's zero-click EchoLeak (CVE-2025-32711) are concrete instances.",
+    "analysis": "A structural refinement to the thesis rather than gap movement. The framework models the AI Orchestration Engine as something the adversary must build via the Weapons Foundry. This evidence establishes a second route: hijack a broadly-permissioned everything-agent already wired into the target's filesystem, credentials, cloud and tools. A hijacked agent is an orchestration engine pre-positioned inside the perimeter, and its actions read as normal agent behaviour — adjacency to c2-5 (legitimate user mimicry), cl-3 (lateral movement) and ao-1/ao-2. It does not move an offensive gap, because it is an attack on AI infrastructure, not a demonstration of AI autonomously running an offensive campaign. Its value: it weakens the 'integration is the hard part' assumption for the orchestration layer specifically — theft may be cheaper than construction. Cross-references intel-china-claude, where the orchestration engine was Claude Code, socially engineered rather than hijacked.",
+    "capabilityImpact": "No status change. Thesis-level refinement: introduces 'steal the orchestration layer' as an alternative to 'build it', adjacent to ao-1/ao-2/cl-3/c2-5.",
+    "gapsAffected": [
+      "ao-1",
+      "ao-2",
+      "cl-3",
+      "c2-5"
+    ]
+  },
+  {
+    "id": "intel-aisi-pan-benchmark",
+    "date": "2026-05-01",
+    "title": "UK AISI + Palo Alto Networks — frontier models approaching autonomous enterprise intrusion in controlled testing",
+    "source": "UK AI Security Institute / Palo Alto Networks",
+    "type": "Capability threshold",
+    "severity": "high",
+    "url": "https://www.aisi.gov.uk/",
+    "summary": "Benchmarks published in May 2026 showed frontier models approaching autonomous enterprise intrusion capability in controlled testing, including multi-stage paths through credential theft, privilege escalation, lateral movement, and persistence. Controlled-environment evaluation, not a documented in-the-wild operation. Exact publication title and date pending primary-source verification.",
+    "analysis": "Provides phase-by-phase capability granularity to complement intel-frontier-trajectory, which captured the acceleration curve and the 32-step network simulation but not a per-capability breakdown. As a controlled multi-stage demonstration it strengthens the amber assessments for cl-3 (AI-driven lateral movement), cl-4 (autonomous privilege escalation) and pc-1 (multi-mechanism persistence) without moving any to EXISTS — these remain controlled-test capabilities, not field-documented threat-actor TTPs. Reinforces the core thesis claim that the kill-chain components are individually demonstrable; integration under live defensive pressure remains the engineering gap.",
+    "capabilityImpact": "No status change. Strengthens cl-3, cl-4 and pc-1 amber assessments with a multi-stage controlled demonstration.",
+    "gapsAffected": [
+      "cl-3",
+      "cl-4",
+      "pc-1"
+    ]
   }
 ]

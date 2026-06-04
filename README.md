@@ -23,11 +23,11 @@ Each of the 32 capabilities required for this architecture is assessed as:
 
 | Status | Count | Percentage |
 |--------|-------|------------|
-| Exists Today | 16 | 50% |
+| Exists Today | 17 | 53% |
 | Partially Exists | 11 | 34% |
-| Engineering Gap | 5 | 16% |
+| Engineering Gap | 4 | 13% |
 
-The five remaining gaps are all orchestration-layer problems: environment value assessment, selective IP targeting, legitimate user traffic mimicry, automated field-to-foundry feedback loop, and full adaptive SOC evasion.
+The four remaining gaps are all orchestration / integration-layer problems: selective IP targeting, legitimate user traffic mimicry, automated field-to-foundry feedback loop, and full adaptive SOC evasion.
 
 ## How to Update
 

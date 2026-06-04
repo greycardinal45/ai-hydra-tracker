@@ -1,6 +1,22 @@
 [
   {
     "date": "2026-06-04",
+    "entry": "Moved pc-2 (selective data ID by LLM) from PARTIAL to EXISTS on in-the-wild evidence: PromptSteal (APT28) and QuietVault. Added intel-promptsteal."
+  },
+  {
+    "date": "2026-06-04",
+    "entry": "Moved ao-3 (environment value assessment) from GAP to PARTIAL on POC-grade evidence: Ransomware 3.0 (NYU Tandon). Added intel-ransomware3. Labelled POC-grade."
+  },
+  {
+    "date": "2026-06-04",
+    "entry": "Recorded deliberate HOLD of ip-1 at GAP despite accumulating supporting evidence; mission-objective IP targeting under adversarial conditions remains undemonstrated."
+  },
+  {
+    "date": "2026-06-04",
+    "entry": "Added intel-miasma (commoditised Mini Shai-Hulud variant), intel-clawchain (OpenClaw agent takeover), intel-agent-hijack (steal-the-orchestration-layer pattern), and intel-aisi-pan-benchmark (controlled multi-stage intrusion). No gap moves; supporting weight for c2-1/c2-4, cl-3/cl-4/pc-1, and thesis-level refinement of the orchestration-layer assumption."
+  },
+  {
+    "date": "2026-06-04",
     "entry": "Post-Infosec Europe review: 8 additional intelligence citations added — APT34/35/MuddyWater C2, GTIG GTG-1002 autonomous ops, frontier model trajectory, 80% ransomware AI adoption, 76% polymorphic malware, Lumu AI-C2 prediction. Total: 25 documents."
   },
   {
