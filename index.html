@@ -13,6 +13,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.26.9/babel.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
+html,body{overflow-x:hidden}
 body{background:#0D1117;color:#E6EDF3;font-family:'Segoe UI',-apple-system,sans-serif;-webkit-font-smoothing:antialiased}
 a{color:#58A6FF;text-decoration:none}a:hover{text-decoration:underline!important}
 button{font-family:inherit}button:hover{opacity:.8}
@@ -82,8 +83,8 @@ function Architecture() {
   );
 
   return (
-    <div style={{ overflowX: "auto" }}>
-      <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", maxWidth: W, display: "block", margin: "0 auto" }}>
+    <div style={{ position: "relative", left: "50%", width: "100vw", marginLeft: "-50vw", padding: "0 16px", overflowX: "auto" }}>
+      <svg viewBox={`0 0 ${W} ${H}`} style={{ width: "100%", maxWidth: 1600, display: "block", margin: "0 auto" }}>
         {/* Layer 1: Operator */}
         <Layer y={10} h={72} color="#FFAA33" label="OPERATOR CONTROL PLANE" tag="Human">
           {["Target Designation", "Objective Definition", "Risk Tolerance", "Strategic Overrides", "Sprint Review"].map((t, i) => (
@@ -268,7 +269,7 @@ function IntelRegistry({ intel }) {
               {i.analysis && <span style={{ fontSize: 9, color: expanded === i.id ? "#00D4AA" : "#8B949E", marginLeft: "auto", fontFamily: "monospace" }}>{expanded === i.id ? "▲ Hide" : "▼ Analysis"}</span>}
             </div>
             <div style={{ color: "#E6EDF3", fontSize: 13, fontWeight: 700, marginBottom: 5 }}>{i.title}</div>
-            <div style={{ color: "#8B949E", fontSize: 11, lineHeight: 1.5 }}>{i.summary}</div>
+            <div style={{ color: "#8B949E", fontSize: 12.5, lineHeight: 1.55 }}>{i.summary}</div>
           </div>
           {expanded === i.id && i.analysis && (
             <div style={{ borderTop: "1px solid #21262d", padding: "14px 16px", background: "#0d1117" }}>
