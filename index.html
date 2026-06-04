@@ -407,8 +407,8 @@ function Timeline({ gaps, intel }) {
                   <text x={9} y={(y0 + y1) / 2} fill="#8B949E" fontSize="7.5" fontFamily="monospace" transform={`rotate(-90 9 ${(y0 + y1) / 2})`} textAnchor="middle">{ph.toUpperCase().slice(0, 22)}</text>
                 </g>); y = y1; }); return out; })()}
               {rows.map((g, i) => { const y = TOP + i * CH; return (<g key={g.id}>
-                <text x={LX - 60} y={y + CH / 2 + 3} fill="#E6EDF3" fontSize="9" fontFamily="monospace" textAnchor="end">{g.id}</text>
-                <text x={LX - 8} y={y + CH / 2 + 3} fill="#8B949E" fontSize="8" textAnchor="end">{g.name.slice(0, 30)}</text>
+                <text x={30} y={y + CH / 2 + 3} fill="#E6EDF3" fontSize="9" fontFamily="monospace" textAnchor="start">{g.id}</text>
+                <text x={74} y={y + CH / 2 + 3} fill="#8B949E" fontSize="8" textAnchor="start">{g.name.length > 26 ? g.name.slice(0, 25) + "…" : g.name}</text>
                 {dates.map((d, j) => { const s = statusAt(g, d), strv = strengthAt(g.id, d), op = 0.24 + 0.76 * (strv / maxStr), x = LX + j * CW + CW * 0.1, w = CW * 0.8;
                   return <rect key={d} x={x} y={y + 1.5} width={w} height={CH - 3} rx="2" fill={STATUS[s].color} fillOpacity={op}
                     stroke={hover && hover.id === g.id && hover.d === d ? "#fff" : "none"} strokeWidth="1"
@@ -445,7 +445,11 @@ function Timeline({ gaps, intel }) {
                 <rect x={x - 6} y={sTop - 6} width={SNW + 12} height={story.H * sScale + 12} fill="transparent" style={{ cursor: "pointer" }} onClick={() => setSel(d)} />
                 <text x={x + SNW / 2} y={sTop - 30} fill="#E6EDF3" fontSize="10" fontWeight="bold" textAnchor="middle">{i === 0 ? "First intel" : (mv.length ? mv.join(", ") : "—")}</text>
                 <text x={x + SNW / 2} y={sTop - 17} fill="#8B949E" fontSize="8.5" fontFamily="monospace" textAnchor="middle">{d}</text>
-                <text x={x + SNW / 2} y={SY(story.H) + 18} fill="#E6EDF3" fontSize="9.5" fontFamily="monospace" fontWeight="bold" textAnchor="middle">{c.exists}/{c.partial}/{c.gap}</text>
+                <text x={x + SNW / 2} y={SY(story.H) + 18} fontSize="9.5" fontFamily="monospace" fontWeight="bold" textAnchor="middle">
+                  <tspan fill={STATUS.exists.color}>E-{c.exists}</tspan>
+                  <tspan fill={STATUS.partial.color} dx="7">P-{c.partial}</tspan>
+                  <tspan fill={STATUS.gap.color} dx="7">G-{c.gap}</tspan>
+                </text>
               </g>); })}
             </svg>
           </div>
