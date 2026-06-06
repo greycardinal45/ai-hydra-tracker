@@ -7,5 +7,14 @@
     "description": "Full capability framework — 32 capabilities across 7 kill-chain phases, 4-layer architecture, gap analysis, and defensive recommendations. Presented at Infosec Europe, June 2026.",
     "type": "Whitepaper",
     "author": "Darren Humphries"
+  },
+  {
+    "title": "CVE Volume & Severity vs AI Capability Timeline",
+    "version": "1.0",
+    "date": "2026-06-06",
+    "filename": "../cve-analysis/",
+    "description": "Cross-correlation analysis of Microsoft Patch Tuesday data overlaid with AI model availability milestones. Tests whether defensive AI discovery is inflating CVE counts and severity. Four interactive charts with converged threat index.",
+    "type": "Technical Brief",
+    "author": "Darren Humphries"
   }
 ]

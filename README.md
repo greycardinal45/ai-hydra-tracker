@@ -2,7 +2,9 @@
 
 **Live tracker:** [View the framework →](https://greycardinal45.github.io/ai-hydra-tracker/)
 
-**Whitepaper:** [The AI Hydra: When Worms Learn to Think (PDF) →](AI-Hydra-Whitepaper.pdf)
+**CVE cross-correlation:** [CVE & AI capability analysis →](https://greycardinal45.github.io/ai-hydra-tracker/cve-analysis/)
+
+**Whitepaper:** [The AI Hydra: When Worms Learn to Think (PDF) →](docs/AI-Hydra-Whitepaper.pdf)
 
 A living intelligence tracker mapping the convergence of autonomous AI, offensive cyber tooling, and the engineering gaps that remain before fully autonomous AI-enabled offensive cyber operations become feasible.
 
