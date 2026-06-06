@@ -508,12 +508,12 @@ function TimelineDetail({ date, intel, model }) {
 const DOC_TYPE_COLORS = { Whitepaper: "#58A6FF", "Research Paper": "#BC8CFF", "Technical Brief": "#00D4AA", Report: "#FFAA33" };
 
 function DocsRegistry({ docs }) {
-  if (!docs.length) return <div style={{ color: "#8B949E", fontSize: 12, fontFamily: "monospace" }}>No published documents found.</div>;
   return (
     <div>
       <p style={{ color: "#8B949E", fontSize: 12, marginBottom: 18, lineHeight: 1.5 }}>
-        Published documents (v1.0+). Additional research papers and working drafts may be available in the <a href="docs/" style={{ color: "#58A6FF" }}>docs/</a> folder.
+        Published documents (v1.0+). Pre-publication research papers and working drafts are available in the <a href="https://github.com/greycardinal45/ai-hydra-tracker/tree/main/docs" style={{ color: "#58A6FF" }}>docs/</a> directory.
       </p>
+      {!docs.length && <div style={{ color: "#6e7681", fontSize: 12, fontFamily: "monospace", padding: "20px 0" }}>No published documents yet.</div>}
       {docs.sort((a, b) => b.date.localeCompare(a.date)).map((d, i) => (
         <div key={i} style={{ marginBottom: 12, background: "#161B22", borderRadius: 6, border: "1px solid #1b1f27", padding: "18px 20px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8, flexWrap: "wrap" }}>
@@ -569,7 +569,8 @@ function App() {
             <span style={{ color: "#FF6B6B", fontSize: 9, fontFamily: "monospace", textTransform: "uppercase", letterSpacing: 2, fontWeight: 800 }}>Live Intelligence Tracker</span>
           </div>
           <h1 style={{ fontSize: 24, fontWeight: 800, margin: "0 0 4px", letterSpacing: -0.5 }}>The AI Hydra — Threat Capability Framework</h1>
-          <p style={{ color: "#6e7681", fontSize: 12, margin: 0 }}>Tracking the convergence of autonomous AI, offensive cyber tooling, and the engineering gaps that remain.</p>
+          <p style={{ color: "#8B949E", fontSize: 12, margin: "2px 0 0", fontStyle: "italic" }}>When Worms Learn to Think — Capability Framework</p>
+          <p style={{ color: "#6e7681", fontSize: 11, margin: "4px 0 0" }}>Tracking the convergence of autonomous AI, offensive cyber tooling, and the engineering gaps that remain.</p>
           <div style={{ display: "flex", gap: 18, marginTop: 12 }}>
             {Object.entries(STATUS).map(([k, v]) => (
               <div key={k} style={{ display: "flex", alignItems: "center", gap: 5 }}>
@@ -578,10 +579,6 @@ function App() {
                 <span style={{ color: "#8B949E", fontSize: 10 }}>{v.label}</span>
               </div>
             ))}
-          </div>
-          <div style={{ marginTop: 14 }}>
-            <a href="docs/AI-Hydra-Whitepaper.pdf" target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "#1f6feb", color: "#fff", fontSize: 12, fontWeight: 700, textDecoration: "none", padding: "7px 14px", borderRadius: 6, border: "1px solid #388bfd" }}>📄 Read the whitepaper (PDF)</a>
-            <span style={{ color: "#6e7681", fontSize: 10, marginLeft: 10 }}>The AI Hydra: When Worms Learn to Think — full capability framework</span>
           </div>
         </div>
       </div>
