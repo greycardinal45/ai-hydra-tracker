@@ -71,7 +71,7 @@ function TabBar({ tabs, active, onChange }) {
 // ARCHITECTURE — SVG layered diagram
 // ============================================
 function Architecture() {
-  const W = 960, H = 620;
+  const W = 1020, H = 620;
   const Layer = ({ y, h, color, label, tag, children }) => (
     <g>
       <rect x={20} y={y} width={680} height={h} rx={6} fill="#161B22" stroke={color} strokeWidth={1.2} />
@@ -109,22 +109,22 @@ function Architecture() {
         </Layer>
 
         {/* Weapons Foundry — right side */}
-        <rect x={720} y={10} width={220} height={170} rx={6} fill="#161B22" stroke="#BC8CFF" strokeWidth={0.8} strokeDasharray="5,4" />
-        <rect x={720} y={10} width={220} height={3} rx={2} fill="#BC8CFF" opacity={0.7} />
-        <text x={734} y={28} fill="#BC8CFF" fontSize={8} fontWeight={800} fontFamily="monospace" letterSpacing={1.2}>WEAPONS FOUNDRY</text>
-        <text x={734} y={40} fill="#8B949E" fontSize={7} fontFamily="sans-serif">Adversary SDLC</text>
+        <rect x={780} y={10} width={220} height={170} rx={6} fill="#161B22" stroke="#BC8CFF" strokeWidth={0.8} strokeDasharray="5,4" />
+        <rect x={780} y={10} width={220} height={3} rx={2} fill="#BC8CFF" opacity={0.7} />
+        <text x={794} y={28} fill="#BC8CFF" fontSize={8} fontWeight={800} fontFamily="monospace" letterSpacing={1.2}>WEAPONS FOUNDRY</text>
+        <text x={794} y={40} fill="#8B949E" fontSize={7} fontFamily="sans-serif">Adversary SDLC</text>
         {["Backlog Intake", "Sprint Planning", "Exploit Dev & Test", "Implant Build", "OTA Deploy via C2"].map((t, i) => (
           <g key={i}>
-            <rect x={732} y={50 + i * 24} width={196} height={19} rx={3} fill="#0d1117" />
-            <text x={742} y={63 + i * 24} fill="#BC8CFF" fontSize={8} fontFamily="sans-serif" opacity={0.85}>{t}</text>
+            <rect x={792} y={50 + i * 24} width={196} height={19} rx={3} fill="#0d1117" />
+            <text x={802} y={63 + i * 24} fill="#BC8CFF" fontSize={8} fontFamily="sans-serif" opacity={0.85}>{t}</text>
           </g>
         ))}
 
         {/* Foundry arrows */}
-        <line x1={700} y1={130} x2={718} y2={120} stroke="#BC8CFF" strokeWidth={0.8} strokeDasharray="4,3" />
-        <text x={700} y={112} fill="#BC8CFF" fontSize={6} fontFamily="monospace" opacity={0.6}>gaps →</text>
-        <line x1={718} y1={160} x2={700} y2={155} stroke="#BC8CFF" strokeWidth={0.8} strokeDasharray="4,3" />
-        <text x={694} y={170} fill="#BC8CFF" fontSize={6} fontFamily="monospace" opacity={0.6}>← implants</text>
+        <line x1={700} y1={125} x2={778} y2={105} stroke="#BC8CFF" strokeWidth={0.8} strokeDasharray="4,3" markerEnd="url(#arrowPurple)" />
+        <text x={720} y={108} fill="#BC8CFF" fontSize={7} fontFamily="monospace" opacity={0.7}>gaps</text>
+        <line x1={778} y1={155} x2={700} y2={165} stroke="#BC8CFF" strokeWidth={0.8} strokeDasharray="4,3" />
+        <text x={720} y={178} fill="#BC8CFF" fontSize={7} fontFamily="monospace" opacity={0.7}>implants</text>
 
         {/* Arrow */}
         <line x1={360} y1={180} x2={360} y2={198} stroke="#00D4AA" strokeWidth={1.5} />
@@ -137,13 +137,13 @@ function Architecture() {
         </Layer>
 
         {/* Foundry → C2 */}
-        <line x1={830} y1={180} x2={830} y2={218} stroke="#BC8CFF" strokeWidth={0.8} strokeDasharray="4,3" />
+        <line x1={890} y1={180} x2={890} y2={218} stroke="#BC8CFF" strokeWidth={0.8} strokeDasharray="4,3" />
 
         {/* Arrow */}
         <line x1={360} y1={260} x2={360} y2={278} stroke="#00D4AA" strokeWidth={1.5} />
 
         {/* Layer 4: Kill Chain */}
-        <rect x={20} y={280} width={920} height={3} rx={2} fill="#FF6B6B" />
+        <rect x={20} y={280} width={980} height={3} rx={2} fill="#FF6B6B" />
         <text x={36} y={300} fill="#FF6B6B" fontSize={9} fontWeight={800} fontFamily="monospace" letterSpacing={1.5}>TOOL & TTP LAYER</text>
         <text x={220} y={300} fill="#6e7681" fontSize={8} fontFamily="sans-serif">Kill chain — continuously updated via SDLC</text>
 
