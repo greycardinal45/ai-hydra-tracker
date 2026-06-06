@@ -524,7 +524,7 @@ function DocsRegistry({ docs }) {
           <div style={{ fontSize: 15, fontWeight: 700, color: "#E6EDF3", marginBottom: 6 }}>{d.title}</div>
           <div style={{ fontSize: 12, color: "#8B949E", lineHeight: 1.55, marginBottom: 12 }}>{d.description}</div>
           <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
-            <a href={d.filename} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#1f6feb", color: "#fff", fontSize: 11, fontWeight: 700, textDecoration: "none", padding: "6px 14px", borderRadius: 5, border: "1px solid #388bfd" }}>{d.filename.endsWith(".pdf") ? "Download PDF" : "View Analysis"}</a>
+            <a href={d.url} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#1f6feb", color: "#fff", fontSize: 11, fontWeight: 700, textDecoration: "none", padding: "6px 14px", borderRadius: 5, border: "1px solid #388bfd" }}>{d.url.endsWith(".pdf") ? "Download PDF" : "View Analysis"}</a>
             {d.author && <span style={{ fontSize: 10, color: "#6e7681" }}>{d.author}</span>}
           </div>
         </div>
