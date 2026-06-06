@@ -505,5 +505,24 @@
       "cl-4",
       "pc-1"
     ]
+  },
+  {
+    "id": "intel-cleverhans-worm",
+    "date": "2026-06-03",
+    "title": "CleverHans — AI-driven adaptive computer worm with recursive per-target reasoning",
+    "source": "Ben-Gurion University / arXiv 2606.03811",
+    "type": "Autonomous malware",
+    "severity": "high",
+    "url": "https://arxiv.org/abs/2606.03811",
+    "summary": "Peer-reviewed proof-of-concept demonstrating an AI-driven adaptive worm powered by an open-weight LLM on a single GPU. The worm propagates across heterogeneous networks (Linux, Windows, IoT), applying recursive goal-directed reasoning to formulate target-specific attack strategies in real time. It incorporates newly published CVEs within hours of disclosure, operates parasitically on victim compute resources, and produces implicitly polymorphic instances — each compromised host receives a unique attack chain. In a controlled virtual network, the worm reached 50% penetration within five days. Evasion, concealment, and EDR avoidance were intentionally omitted from the POC scope.",
+    "analysis": "CleverHans is the strongest single corroboration of the Hydra convergence thesis to date. It demonstrates five Gen 1 capabilities operating together in a single offensive artefact: autonomous vulnerability scanning and exploit execution (ia-1, ia-2 — already EXISTS), recursive attack-surface assessment per target (ao-1 — already EXISTS, this adds another independent citation), real-time tool and exploit selection adapting to each host (ao-2 — reinforces PARTIAL), implicit polymorphism through unique per-target reasoning chains (ev-1 — already EXISTS), and AI-driven lateral propagation across heterogeneous network segments (cl-3 — reinforces PARTIAL). It also provides supporting weight for ao-5 via its CVE-integration-within-hours capability, demonstrating that field intelligence intake works — though the evasion dimension of ao-5 is explicitly undemonstrated. Critically, it validates the thesis that small open-weight models are sufficient for autonomous offensive operations, removing the assumption that frontier-model access is required. The marginal cost of attack collapses toward zero when the worm runs on stolen compute. No gap status changes: ao-1 is already EXISTS, ao-5 evasion is explicitly omitted, no foundry loop is demonstrated (sd-3), targeting is indiscriminate (ip-1), and no user-traffic mimicry is attempted (c2-5). The value is thesis-level: the orchestration layer works in a lab POC, on commodity hardware, with an open model. Cross-references intel-pentagi (multi-agent architecture), intel-promptspy (AI reasoning engine in malware), and intel-shai-hulud (supply-chain propagation without AI reasoning).",
+    "capabilityImpact": "No status change. Corroborating evidence strengthening ao-1 (EXISTS), ao-2 (PARTIAL), cl-3 (PARTIAL), ev-1 (EXISTS), and ao-5 field-intel dimension. Thesis validation: the orchestration layer works on a single GPU with an open-weight model.",
+    "gapsAffected": [
+      "ao-1",
+      "ao-2",
+      "ao-5",
+      "cl-3",
+      "ev-1"
+    ]
   }
 ]

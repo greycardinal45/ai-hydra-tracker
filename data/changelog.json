@@ -1,5 +1,9 @@
 [
   {
+    "date": "2026-06-06",
+    "entry": "Added intel-cleverhans-worm (arXiv 2606.03811): AI-driven adaptive worm with recursive per-target reasoning on open-weight LLM. Corroborating evidence across ao-1, ao-2, ao-5, cl-3, ev-1 — no gap status changes. Added Docs tab to tracker."
+  },
+  {
     "date": "2026-06-04",
     "entry": "Moved pc-2 (selective data ID by LLM) from PARTIAL to EXISTS on in-the-wild evidence: PromptSteal (APT28) and QuietVault. Added intel-promptsteal."
   },

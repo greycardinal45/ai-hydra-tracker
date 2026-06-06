@@ -190,13 +190,14 @@ function Architecture() {
 // ============================================
 // GAP ANALYSIS
 // ============================================
-function GapAnalysis({ gaps }) {
+function GapAnalysis({ gaps, intel }) {
   const [filter, setFilter] = useState("all");
   const [open, setOpen] = useState(null);
   const counts = useMemo(() => { const c = { exists: 0, partial: 0, gap: 0 }; gaps.forEach(g => c[g.status]++); return c; }, [gaps]);
   const total = counts.exists + counts.partial + counts.gap;
   const filtered = filter === "all" ? gaps : gaps.filter(g => g.status === filter);
   const phases = useMemo(() => [...new Set(gaps.map(g => g.phase))], [gaps]);
+  const intelByGap = useMemo(() => { const m = {}; intel.forEach(c => (c.gapsAffected || []).forEach(id => { if (!m[id]) m[id] = []; m[id].push(c); })); return m; }, [intel]);
 
   return (
     <div>
@@ -234,6 +235,19 @@ function GapAnalysis({ gaps }) {
                     {g.changed && <div style={{ color: "#FFAA33", marginBottom: 3 }}>Changed: {g.changed} (was: {g.previousStatus})</div>}
                     <div style={{ color: "#E6EDF3" }}>{g.source}</div>
                     {g.evidence && <div style={{ marginTop: 6, color: "#58A6FF", fontFamily: "monospace", fontSize: 10 }}>Evidence: {g.evidence}</div>}
+                    {intelByGap[g.id] && intelByGap[g.id].length > 0 && (
+                      <div style={{ marginTop: 10, borderTop: "1px solid #21262d", paddingTop: 8 }}>
+                        <div style={{ fontSize: 9, fontWeight: 700, color: "#8B949E", fontFamily: "monospace", letterSpacing: 1, marginBottom: 6, textTransform: "uppercase" }}>Intelligence ({intelByGap[g.id].length})</div>
+                        {intelByGap[g.id].sort((a, b) => b.date.localeCompare(a.date)).map(c => (
+                          <div key={c.id} style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 4, fontSize: 10 }}>
+                            <SeverityBadge severity={c.severity} />
+                            <span style={{ color: "#6e7681", fontFamily: "monospace", minWidth: 68 }}>{c.date}</span>
+                            <span style={{ color: "#E6EDF3" }}>{c.title}</span>
+                            {c.url && <a href={c.url} target="_blank" rel="noopener noreferrer" style={{ color: "#58A6FF", fontSize: 9, flexShrink: 0 }}>source</a>}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -489,6 +503,37 @@ function TimelineDetail({ date, intel, model }) {
 }
 
 // ============================================
+// DOCS — published documents from docs/ folder
+// ============================================
+const DOC_TYPE_COLORS = { Whitepaper: "#58A6FF", "Research Paper": "#BC8CFF", "Technical Brief": "#00D4AA", Report: "#FFAA33" };
+
+function DocsRegistry({ docs }) {
+  if (!docs.length) return <div style={{ color: "#8B949E", fontSize: 12, fontFamily: "monospace" }}>No published documents found.</div>;
+  return (
+    <div>
+      <p style={{ color: "#8B949E", fontSize: 12, marginBottom: 18, lineHeight: 1.5 }}>
+        Published documents (v1.0+). Additional research papers and working drafts may be available in the <a href="docs/" style={{ color: "#58A6FF" }}>docs/</a> folder.
+      </p>
+      {docs.sort((a, b) => b.date.localeCompare(a.date)).map((d, i) => (
+        <div key={i} style={{ marginBottom: 12, background: "#161B22", borderRadius: 6, border: "1px solid #1b1f27", padding: "18px 20px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8, flexWrap: "wrap" }}>
+            <span style={{ fontSize: 9, fontWeight: 800, color: DOC_TYPE_COLORS[d.type] || "#8B949E", background: (DOC_TYPE_COLORS[d.type] || "#8B949E") + "12", border: "1px solid " + (DOC_TYPE_COLORS[d.type] || "#8B949E") + "25", padding: "2px 8px", borderRadius: 3, letterSpacing: 1.2, fontFamily: "monospace" }}>{d.type.toUpperCase()}</span>
+            <span style={{ fontSize: 10, color: "#8B949E", fontFamily: "monospace" }}>v{d.version}</span>
+            <span style={{ fontSize: 10, color: "#8B949E", fontFamily: "monospace" }}>{d.date}</span>
+          </div>
+          <div style={{ fontSize: 15, fontWeight: 700, color: "#E6EDF3", marginBottom: 6 }}>{d.title}</div>
+          <div style={{ fontSize: 12, color: "#8B949E", lineHeight: 1.55, marginBottom: 12 }}>{d.description}</div>
+          <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+            <a href={"docs/" + d.filename} target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#1f6feb", color: "#fff", fontSize: 11, fontWeight: 700, textDecoration: "none", padding: "6px 14px", borderRadius: 5, border: "1px solid #388bfd" }}>Download PDF</a>
+            {d.author && <span style={{ fontSize: 10, color: "#6e7681" }}>{d.author}</span>}
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ============================================
 // MAIN
 // ============================================
 function App() {
@@ -496,6 +541,7 @@ function App() {
   const [gaps, setGaps] = useState([]);
   const [intel, setIntel] = useState([]);
   const [changelog, setChangelog] = useState([]);
+  const [docs, setDocs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -504,7 +550,8 @@ function App() {
       fetch("data/gaps.json").then(r => r.json()),
       fetch("data/intel.json").then(r => r.json()),
       fetch("data/changelog.json").then(r => r.json()),
-    ]).then(([g, i, c]) => { setGaps(g); setIntel(i); setChangelog(c); setLoading(false); })
+      fetch("docs/index.json").then(r => r.json()).catch(() => []),
+    ]).then(([g, i, c, d]) => { setGaps(g); setIntel(i); setChangelog(c); setDocs(d); setLoading(false); })
       .catch(e => { console.error(e); setError(String(e)); setLoading(false); });
   }, []);
 
@@ -533,7 +580,7 @@ function App() {
             ))}
           </div>
           <div style={{ marginTop: 14 }}>
-            <a href="AI-Hydra-Whitepaper.pdf" target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "#1f6feb", color: "#fff", fontSize: 12, fontWeight: 700, textDecoration: "none", padding: "7px 14px", borderRadius: 6, border: "1px solid #388bfd" }}>📄 Read the whitepaper (PDF)</a>
+            <a href="docs/AI-Hydra-Whitepaper.pdf" target="_blank" rel="noopener noreferrer" style={{ display: "inline-flex", alignItems: "center", gap: 7, background: "#1f6feb", color: "#fff", fontSize: 12, fontWeight: 700, textDecoration: "none", padding: "7px 14px", borderRadius: 6, border: "1px solid #388bfd" }}>📄 Read the whitepaper (PDF)</a>
             <span style={{ color: "#6e7681", fontSize: 10, marginLeft: 10 }}>The AI Hydra: When Worms Learn to Think — full capability framework</span>
           </div>
         </div>
@@ -544,14 +591,16 @@ function App() {
           { id: "gaps", label: "Gap Analysis", count: gaps.length },
           { id: "intel", label: "Intelligence", count: intel.length },
           { id: "timeline", label: "Timeline", count: intel.length },
+          { id: "docs", label: "Docs", count: docs.length },
         ]} active={tab} onChange={setTab} />
         {tab === "architecture" && <Architecture />}
-        {tab === "gaps" && <GapAnalysis gaps={gaps} />}
+        {tab === "gaps" && <GapAnalysis gaps={gaps} intel={intel} />}
         {tab === "intel" && <IntelRegistry intel={intel} />}
         {tab === "timeline" && <Timeline gaps={gaps} intel={intel} />}
+        {tab === "docs" && <DocsRegistry docs={docs} />}
       </div>
       <div style={{ borderTop: "1px solid #1b1f27", padding: "14px 20px", textAlign: "center" }}>
-        <span style={{ color: "#8B949E", fontSize: 10 }}>Darren Humphries · Group CISO · CC BY 4.0 · Infosec Europe 2026 · <a href="AI-Hydra-Whitepaper.pdf" style={{ color: "#58A6FF" }}>Whitepaper (PDF)</a> · <a href="https://github.com/greycardinal45/ai-hydra-tracker">GitHub</a></span>
+        <span style={{ color: "#8B949E", fontSize: 10 }}>Darren Humphries · Group CISO · CC BY 4.0 · Infosec Europe 2026 · <a href="docs/AI-Hydra-Whitepaper.pdf" style={{ color: "#58A6FF" }}>Whitepaper (PDF)</a> · <a href="https://github.com/greycardinal45/ai-hydra-tracker">GitHub</a></span>
       </div>
     </div>
   );
