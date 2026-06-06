@@ -1,11 +1,11 @@
 [
   {
-    "title": "The AI Hydra: When Worms Learn to Think",
+    "title": "AI Exploitation Cross-Correlation Analysis",
     "version": "1.0",
-    "date": "2026-06-04",
-    "url": "https://greycardinal45.github.io/ai-hydra-tracker/docs/AI-Hydra-Whitepaper.pdf",
-    "description": "Full capability framework — 32 capabilities across 7 kill-chain phases, 4-layer architecture, gap analysis, and defensive recommendations. Presented at Infosec Europe, June 2026.",
-    "type": "Whitepaper",
+    "date": "2026-06-06",
+    "url": "https://greycardinal45.github.io/ai-hydra-tracker/docs/AI_Exploitation_Cross_Correlation_Analysis_v1.0.pdf",
+    "description": "Cross-correlation of AI model availability, exploitation speed, and breach disclosures. Tests whether the AI acceleration narrative holds against three independent data streams: Mandiant TTE, Verizon DBIR, and ITRC breach counts. Three-claim separation: speed (supported), zero-day volume (not supported), defensive discovery (supported).",
+    "type": "Research Paper",
     "author": "Darren Humphries"
   },
   {
@@ -15,6 +15,15 @@
     "url": "https://greycardinal45.github.io/ai-hydra-tracker/cve-analysis/",
     "description": "Cross-correlation analysis of Microsoft Patch Tuesday data overlaid with AI model availability milestones. Tests whether defensive AI discovery is inflating CVE counts and severity. Four interactive charts with converged threat index.",
     "type": "Technical Brief",
+    "author": "Darren Humphries"
+  },
+  {
+    "title": "The AI Hydra: When Worms Learn to Think",
+    "version": "1.0",
+    "date": "2026-06-04",
+    "url": "https://greycardinal45.github.io/ai-hydra-tracker/docs/AI-Hydra-Whitepaper.pdf",
+    "description": "Full capability framework — 32 capabilities across 7 kill-chain phases, 4-layer architecture, gap analysis, and defensive recommendations. Presented at Infosec Europe, June 2026.",
+    "type": "Whitepaper",
     "author": "Darren Humphries"
   }
 ]
