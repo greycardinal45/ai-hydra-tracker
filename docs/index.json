@@ -12,7 +12,7 @@
     "title": "CVE Volume & Severity vs AI Capability Timeline",
     "version": "1.0",
     "date": "2026-06-06",
-    "filename": "../cve-analysis/",
+    "filename": "cve-analysis/",
     "description": "Cross-correlation analysis of Microsoft Patch Tuesday data overlaid with AI model availability milestones. Tests whether defensive AI discovery is inflating CVE counts and severity. Four interactive charts with converged threat index.",
     "type": "Technical Brief",
     "author": "Darren Humphries"
